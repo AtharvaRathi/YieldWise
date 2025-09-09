@@ -10,7 +10,7 @@ let currentCropData = null;
 let posts = [];
 
 // Mapbox Configuration
-mapboxgl.accessToken = 'pk.eyJ1IjoieWllbGR3aXNlIiwiYSI6ImNsejE2N2YwdzA5Y2wybG1hNjI0OWxwdnYifQ.dummy'; // Replace with actual Mapbox token
+mapboxgl.accessToken = 'pk.eyJ1IjoiYXRoYXJ2c3AiLCJhIjoiY21kbjlwZGtnMWl4ODJsc2ZqcDR5cHVnaCJ9.6_LgxGqTbI7Q4HqHH5lPzQ'; // Replace with actual Mapbox token
 
 // Crop data with all 10 crops
 const cropsData = {
