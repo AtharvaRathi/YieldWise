@@ -1163,8 +1163,13 @@ main {
 }
 
 #map {
-  height: 400px;
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
+
 
 .location-search {
   padding: var(--space-16);
