@@ -332,32 +332,6 @@ const translations = {
         "please-wait": "कृपया प्रतीक्षा करें जबकि हम आपके डेटा को प्रोसेस करते हैं"
     }
 };
-// Initialize Map
-var map = L.map("map").setView([20.5937, 78.9629], 5);
-
-// Tile layer (OpenStreetMap)
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-  attribution: "&copy; OpenStreetMap contributors",
-}).addTo(map);
-
-// Click event
-map.on("click", async function (e) {
-  var lat = e.latlng.lat;
-  var lng = e.latlng.lng;
-
-  // Marker
-  L.marker([lat, lng]).addTo(map);
-
-  // Weather API call
-  const res = await fetch(
-    `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=precipitation_sum&current_weather=true&timezone=auto`
-  );
-  const data = await res.json();
-
-  alert(
-    `Weather: ${data.current_weather.temperature}°C\nRainfall: ${data.daily.precipitation_sum[0]} mm`
-  );
-});
 
 
 // Initialize application
