@@ -1,0 +1,148 @@
+{
+  "name": "YieldWise",
+  "short_name": "YieldWise",
+  "description": "Smart Agricultural Platform for Indian Farmers with AI-powered crop recommendations, yield prediction, and farm management tools",
+  "version": "2.0.0",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAFAFA",
+  "theme_color": "#218C8D",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "https://via.placeholder.com/72x72/218C8D/ffffff?text=🌱",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "https://via.placeholder.com/96x96/218C8D/ffffff?text=🌱",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "https://via.placeholder.com/128x128/218C8D/ffffff?text=🌱",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "https://via.placeholder.com/144x144/218C8D/ffffff?text=🌱",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "https://via.placeholder.com/152x152/218C8D/ffffff?text=🌱",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "https://via.placeholder.com/192x192/218C8D/ffffff?text=🌱",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "https://via.placeholder.com/384x384/218C8D/ffffff?text=🌱",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "https://via.placeholder.com/512x512/218C8D/ffffff?text=🌱",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Crop Prediction",
+      "short_name": "Predict",
+      "description": "AI-powered crop yield prediction",
+      "url": "/?section=prediction",
+      "icons": [
+        {
+          "src": "https://via.placeholder.com/96x96/4CAF50/ffffff?text=🌾",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Disease Detection",
+      "short_name": "Disease",
+      "description": "Plant disease identification",
+      "url": "/?section=disease",
+      "icons": [
+        {
+          "src": "https://via.placeholder.com/96x96/F44336/ffffff?text=🔬",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Community",
+      "short_name": "Community",
+      "description": "Farmer discussions and expert advice",
+      "url": "/?section=community",
+      "icons": [
+        {
+          "src": "https://via.placeholder.com/96x96/2196F3/ffffff?text=👥",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Financial Tools",
+      "short_name": "Finance",
+      "description": "Cost analysis and profit optimization",
+      "url": "/?section=financial",
+      "icons": [
+        {
+          "src": "https://via.placeholder.com/96x96/FF9800/ffffff?text=💰",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "categories": [
+    "agriculture",
+    "productivity",
+    "business",
+    "utilities"
+  ],
+  "screenshots": [
+    {
+      "src": "https://via.placeholder.com/540x720/218C8D/ffffff?text=YieldWise+Homepage",
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "YieldWise Homepage"
+    },
+    {
+      "src": "https://via.placeholder.com/720x540/218C8D/ffffff?text=Crop+Prediction+Dashboard",
+      "sizes": "720x540",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Crop Prediction Dashboard"
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "edge_side_panel": {
+    "preferred_width": 480
+  },
+  "launch_handler": {
+    "client_mode": ["navigate-existing", "navigate-new"]
+  }
+}

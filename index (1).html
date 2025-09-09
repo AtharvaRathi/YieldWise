@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YieldWise - Smart Agricultural Platform</title>
+    <meta name="description" content="YieldWise - Advanced agricultural platform for Indian farmers with AI-powered crop recommendations, yield prediction, and farm management tools">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://mapbox.com/base/latest/base.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#218C8D">
+</head>
+<body>
+    <!-- Auth Modals -->
+    <div id="loginModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 data-translate="login-title">Login to YieldWise</h2>
+                <button class="close-modal" onclick="closeModal('loginModal')">&times;</button>
+            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label" data-translate="phone-email">Phone/Email</label>
+                    <input type="text" class="form-control" id="loginIdentifier" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" data-translate="password">Password</label>
+                    <input type="password" class="form-control" id="loginPassword" required>
+                </div>
+                <button type="submit" class="btn btn--primary btn--full-width" data-translate="login">Login</button>
+                <p style="text-align: center; margin-top: 16px;">
+                    <span data-translate="no-account">Don't have an account?</span> 
+                    <a href="#" onclick="switchToRegister()" data-translate="register-here">Register here</a>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <div id="registerModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 data-translate="register-title">Register for YieldWise</h2>
+                <button class="close-modal" onclick="closeModal('registerModal')">&times;</button>
+            </div>
+            <form id="registerForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label" data-translate="full-name">Full Name *</label>
+                        <input type="text" class="form-control" id="registerName" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" data-translate="phone">Phone Number *</label>
+                        <input type="tel" class="form-control" id="registerPhone" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" data-translate="email">Email Address *</label>
+                        <input type="email" class="form-control" id="registerEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" data-translate="location">Location *</label>
+                        <input type="text" class="form-control" id="registerLocation" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" data-translate="farm-size">Farm Size (acres)</label>
+                        <input type="number" class="form-control" id="registerFarmSize" min="0.1" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" data-translate="primary-crops">Primary Crops</label>
+                        <select class="form-control" id="registerCrops" multiple>
+                            <option value="rice">Rice (चावल)</option>
+                            <option value="wheat">Wheat (गेहूं)</option>
+                            <option value="cotton">Cotton (कपास)</option>
+                            <option value="sugarcane">Sugarcane (गन्ना)</option>
+                            <option value="maize">Maize (मक्का)</option>
+                            <option value="soybean">Soybean (सोयाबीन)</option>
+                            <option value="groundnut">Groundnut (मूंगफली)</option>
+                            <option value="bajra">Bajra (बाजरा)</option>
+                            <option value="jowar">Jowar (ज्वार)</option>
+                            <option value="mustard">Mustard (सरसों)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" data-translate="password">Password *</label>
+                    <input type="password" class="form-control" id="registerPassword" required>
+                </div>
+                <button type="submit" class="btn btn--primary btn--full-width" data-translate="register">Register</button>
+                <p style="text-align: center; margin-top: 16px;">
+                    <span data-translate="have-account">Already have an account?</span> 
+                    <a href="#" onclick="switchToLogin()" data-translate="login-here">Login here</a>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h2>🌱 YieldWise</h2>
+            </div>
+            <div class="nav-menu">
+                <select id="languageSelector" class="form-control language-select">
+                    <option value="en">English</option>
+                    <option value="hi">हिंदी</option>
+                    <option value="bn">বাংলা</option>
+                    <option value="ta">தமிழ்</option>
+                    <option value="te">తెలుగు</option>
+                    <option value="gu">ગુજરાતી</option>
+                    <option value="mr">मराठी</option>
+                    <option value="pa">ਪੰਜਾਬੀ</option>
+                </select>
+                <button class="btn btn--outline" id="loginBtn" onclick="showModal('loginModal')" data-translate="login">Login</button>
+                <button class="btn btn--primary voice-btn" id="voiceBtn" title="Voice Commands">🎤</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="app">
+        <!-- Homepage Section -->
+        <section id="homepage" class="hero-section active">
+            <div class="container">
+                <div class="hero-content">
+                    <h1 data-translate="hero-title">Smart AI-Powered Farming for Better Yields</h1>
+                    <p data-translate="hero-subtitle">Transform your farming with AI-driven crop recommendations, disease detection, market intelligence, and expert guidance for Indian agriculture.</p>
+                    
+                    <div class="hero-stats">
+                        <div class="stat">
+                            <span class="stat-number">99.55%</span>
+                            <span class="stat-label" data-translate="ml-accuracy">ML Accuracy</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">10</span>
+                            <span class="stat-label" data-translate="crop-varieties">Crop Varieties</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">8</span>
+                            <span class="stat-label" data-translate="languages">Languages</span>
+                        </div>
+                    </div>
+                    
+                    <div class="hero-actions">
+                        <button class="btn btn--primary btn--large" onclick="getStarted()" data-translate="get-started">Get Started</button>
+                        <button class="btn btn--outline btn--large" onclick="showSection('location')" data-translate="learn-more">Learn More</button>
+                    </div>
+                </div>
+                
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🌾</div>
+                        <h3 data-translate="yield-prediction">Yield Prediction</h3>
+                        <p data-translate="yield-desc">AI-powered crop yield forecasting with 99.55% accuracy</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔬</div>
+                        <h3 data-translate="disease-detection">Disease Detection</h3>
+                        <p data-translate="disease-desc">Advanced plant disease identification and treatment</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📊</div>
+                        <h3 data-translate="market-intelligence">Market Intelligence</h3>
+                        <p data-translate="market-desc">Real-time pricing and market trend analysis</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">💡</div>
+                        <h3 data-translate="ai-recommendations">AI Recommendations</h3>
+                        <p data-translate="ai-desc">Personalized farming strategies and optimization</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">👥</div>
+                        <h3 data-translate="community">Community</h3>
+                        <p data-translate="community-desc">Connect with farmers and agricultural experts</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">💰</div>
+                        <h3 data-translate="financial-tools">Financial Tools</h3>
+                        <p data-translate="financial-desc">Cost analysis and profit optimization</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Location Section -->
+        <section id="location" class="section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 data-translate="select-location">Select Your Farm Location</h2>
+                    <p data-translate="location-desc">Choose your farm location for personalized crop recommendations</p>
+                </div>
+                
+                <div class="location-content">
+                    <div class="location-map">
+                        <div id="map" style="height: 400px; border-radius: 12px;"></div>
+                        <div class="location-search">
+                            <input type="text" class="form-control" id="locationSearch" 
+                                   placeholder="Search by district, state, or PIN code" data-translate="search-location">
+                            <button class="btn btn--primary" onclick="searchLocation()" data-translate="search">Search</button>
+                        </div>
+                    </div>
+                    
+                    <div class="location-info">
+                        <div class="info-card">
+                            <h3 data-translate="selected-location">Selected Location</h3>
+                            <div id="locationDetails">
+                                <p data-translate="no-location">Click on map to select location</p>
+                            </div>
+                        </div>
+                        
+                        <div class="info-card">
+                            <h3 data-translate="soil-recommendation">Soil Recommendation</h3>
+                            <div id="soilRecommendation">
+                                <p data-translate="select-location-first">Select location to get soil recommendations</p>
+                            </div>
+                        </div>
+                        
+                        <div class="info-card">
+                            <h3 data-translate="weather-info">Weather Information</h3>
+                            <div id="weatherInfo">
+                                <p data-translate="loading-weather">Loading weather data...</p>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn--primary btn--large" onclick="confirmLocation()" 
+                                id="confirmLocationBtn" disabled data-translate="confirm-location">Confirm Location</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Crop Prediction Section -->
+        <section id="prediction" class="section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 data-translate="crop-prediction">AI Crop Yield Prediction</h2>
+                    <p data-translate="prediction-desc">Get accurate yield predictions using advanced machine learning</p>
+                </div>
+                
+                <div class="prediction-content">
+                    <div class="prediction-form">
+                        <div class="form-section">
+                            <h3 data-translate="basic-info">Basic Information</h3>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label" data-translate="crop-type">Crop Type *</label>
+                                    <select class="form-control" id="cropType" onchange="updateCropInfo()">
+                                        <option value="">Select Crop</option>
+                                        <option value="rice">Rice (चावल)</option>
+                                        <option value="wheat">Wheat (गेहूं)</option>
+                                        <option value="cotton">Cotton (कपास)</option>
+                                        <option value="sugarcane">Sugarcane (गन्ना)</option>
+                                        <option value="maize">Maize (मक्का)</option>
+                                        <option value="soybean">Soybean (सोयाबीन)</option>
+                                        <option value="groundnut">Groundnut (मूंगफली)</option>
+                                        <option value="bajra">Bajra (बाजरा)</option>
+                                        <option value="jowar">Jowar (ज्वार)</option>
+                                        <option value="mustard">Mustard (सरसों)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" data-translate="farm-area">Farm Area (hectares) *</label>
+                                    <input type="number" class="form-control" id="farmArea" min="0.1" step="0.1" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" data-translate="season">Season</label>
+                                    <select class="form-control" id="season">
+                                        <option value="kharif">Kharif (June-October)</option>
+                                        <option value="rabi">Rabi (November-April)</option>
+                                        <option value="zaid">Zaid (April-June)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" data-translate="previous-yield">Previous Yield (quintal/ha)</label>
+                                    <input type="number" class="form-control" id="previousYield" min="0" step="0.1">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <h3 data-translate="input-parameters">Input Parameters</h3>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label" data-translate="soil-ph">Soil pH</label>
+                                    <input type="number" class="form-control" id="soilPH" min="3" max="10" step="0.1">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" data-translate="fertilizer-usage">Fertilizer Usage (kg/ha)</label>
+                                    <input type="number" class="form-control" id="fertilizerUsage" min="0" step="5">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" data-translate="pesticide-usage">Pesticide Usage (kg/ha)</label>
+                                    <input type="number" class="form-control" id="pesticideUsage" value="21" min="0" step="1">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" data-translate="irrigation">Irrigation Method</label>
+                                    <select class="form-control" id="irrigation">
+                                        <option value="flood">Flood Irrigation</option>
+                                        <option value="drip">Drip Irrigation</option>
+                                        <option value="sprinkler">Sprinkler</option>
+                                        <option value="rainfed">Rainfed</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn--primary btn--large" onclick="predictYield()" data-translate="predict-yield">
+                            Predict Yield & Get Recommendations
+                        </button>
+                    </div>
+                    
+                    <!-- Results Section -->
+                    <div id="predictionResults" class="prediction-results" style="display: none;">
+                        <div class="results-header">
+                            <h3 data-translate="prediction-results">🎯 Prediction Results</h3>
+                            <div class="model-info">
+                                <span class="model-name">Random Forest Model</span>
+                                <span class="model-accuracy">99.55% Accuracy</span>
+                            </div>
+                        </div>
+                        
+                        <div class="results-grid">
+                            <div class="result-card primary">
+                                <h4 data-translate="predicted-yield">Predicted Yield</h4>
+                                <div class="result-value" id="yieldValue">--</div>
+                                <div class="confidence-range" id="confidenceRange">--</div>
+                            </div>
+                            <div class="result-card">
+                                <h4 data-translate="total-production">Total Production</h4>
+                                <div class="result-value" id="totalProduction">--</div>
+                                <div class="result-meta" id="productionMeta">--</div>
+                            </div>
+                            <div class="result-card">
+                                <h4 data-translate="yield-category">Yield Category</h4>
+                                <div class="result-value" id="yieldCategory">--</div>
+                                <div class="result-meta" id="categoryDesc">--</div>
+                            </div>
+                            <div class="result-card">
+                                <h4 data-translate="improvement-potential">Improvement Potential</h4>
+                                <div class="result-value" id="improvementPotential">--</div>
+                                <div class="result-meta" id="improvementDesc">--</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Gemini AI Recommendations -->
+                        <div class="recommendations-section">
+                            <h3 data-translate="ai-recommendations">🤖 AI Recommendations</h3>
+                            <div class="recommendations-grid" id="recommendationsGrid">
+                                <!-- Will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Disease Detection Section -->
+        <section id="disease" class="section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 data-translate="disease-detection">🔬 Plant Disease Detection</h2>
+                    <p data-translate="disease-desc">Upload plant images for AI-powered disease identification</p>
+                </div>
+                
+                <div class="disease-content">
+                    <div class="upload-section">
+                        <div class="upload-area" id="uploadArea" onclick="document.getElementById('diseaseImage').click()">
+                            <div class="upload-placeholder">
+                                <div class="upload-icon">📷</div>
+                                <h3 data-translate="upload-image">Upload Plant Image</h3>
+                                <p data-translate="drag-drop">Drag & drop or click to select</p>
+                                <input type="file" id="diseaseImage" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+                            </div>
+                        </div>
+                        
+                        <div class="disease-form">
+                            <div class="form-group">
+                                <label class="form-label" data-translate="select-crop">Select Crop Type</label>
+                                <select class="form-control" id="diseaseCrop">
+                                    <option value="rice">Rice (चावल)</option>
+                                    <option value="wheat">Wheat (गेहूं)</option>
+                                    <option value="cotton">Cotton (कपास)</option>
+                                    <option value="sugarcane">Sugarcane (गन्ना)</option>
+                                    <option value="maize">Maize (मक्का)</option>
+                                    <option value="soybean">Soybean (सोयाबीन)</option>
+                                    <option value="groundnut">Groundnut (मूंगफली)</option>
+                                    <option value="bajra">Bajra (बाजरा)</option>
+                                    <option value="jowar">Jowar (ज्वार)</option>
+                                    <option value="mustard">Mustard (सरसों)</option>
+                                </select>
+                            </div>
+                            <button class="btn btn--primary btn--large" onclick="analyzeDisease()" id="analyzeDiseaseBtn" disabled>
+                                <span data-translate="analyze-image">Analyze Image</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="diseaseResults" class="disease-results" style="display: none;">
+                        <div class="analysis-header">
+                            <h3 data-translate="analysis-results">📋 Analysis Results</h3>
+                            <div class="analysis-status">
+                                <span class="status-indicator">✅</span>
+                                <span data-translate="analysis-complete">Analysis Complete</span>
+                            </div>
+                        </div>
+                        
+                        <div class="disease-cards">
+                            <div class="disease-card">
+                                <h4 data-translate="disease-identified">Disease Identified</h4>
+                                <div class="disease-name" id="diseaseName">--</div>
+                                <div class="disease-confidence" id="diseaseConfidence">--</div>
+                                <div class="disease-severity" id="diseaseSeverity">--</div>
+                            </div>
+                            
+                            <div class="disease-card">
+                                <h4 data-translate="symptoms">Symptoms</h4>
+                                <div class="symptoms-list" id="symptomsList">--</div>
+                            </div>
+                            
+                            <div class="disease-card">
+                                <h4 data-translate="treatment">Treatment</h4>
+                                <div class="treatment-info" id="treatmentInfo">--</div>
+                            </div>
+                            
+                            <div class="disease-card">
+                                <h4 data-translate="prevention">Prevention</h4>
+                                <div class="prevention-info" id="preventionInfo">--</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Community Section -->
+        <section id="community" class="section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 data-translate="farmer-community">👥 Farmer Community</h2>
+                    <p data-translate="community-desc">Connect, share knowledge, and get expert advice</p>
+                </div>
+                
+                <div class="community-content">
+                    <div class="community-header">
+                        <div class="community-tabs">
+                            <button class="tab-btn active" onclick="switchTab('discussions')" data-translate="discussions">Discussions</button>
+                            <button class="tab-btn" onclick="switchTab('experts')" data-translate="expert-qa">Expert Q&A</button>
+                            <button class="tab-btn" onclick="switchTab('alerts')" data-translate="alerts">Alerts</button>
+                        </div>
+                        <button class="btn btn--primary" onclick="showCreatePost()" data-translate="create-post">
+                            ➕ Create Post
+                        </button>
+                    </div>
+                    
+                    <div id="discussions" class="tab-content active">
+                        <div id="postsList" class="posts-list">
+                            <!-- Posts will be loaded here -->
+                        </div>
+                    </div>
+                    
+                    <div id="experts" class="tab-content">
+                        <div class="expert-list">
+                            <div class="expert-card">
+                                <div class="expert-info">
+                                    <h4>Dr. Rajesh Kumar</h4>
+                                    <span class="expert-specialization">Plant Pathology</span>
+                                    <div class="expert-rating">⭐ 4.9/5</div>
+                                </div>
+                                <p>"Focus on integrated pest management and soil health for sustainable farming."</p>
+                            </div>
+                            <div class="expert-card">
+                                <div class="expert-info">
+                                    <h4>Prof. Sunita Patel</h4>
+                                    <span class="expert-specialization">Soil Science</span>
+                                    <div class="expert-rating">⭐ 4.8/5</div>
+                                </div>
+                                <p>"Regular soil testing and organic matter management are key to productivity."</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="alerts" class="tab-content">
+                        <div class="alert-list">
+                            <div class="alert-item warning">
+                                <div class="alert-header">
+                                    <h4>🌧️ Weather Alert</h4>
+                                    <span class="alert-time">2 hours ago</span>
+                                </div>
+                                <p>Heavy rainfall expected in Northern states. Protect standing crops.</p>
+                                <div class="alert-region">Punjab, Haryana, UP</div>
+                            </div>
+                            <div class="alert-item danger">
+                                <div class="alert-header">
+                                    <h4>🐛 Pest Alert</h4>
+                                    <span class="alert-time">6 hours ago</span>
+                                </div>
+                                <p>Fall armyworm infestation reported in maize fields.</p>
+                                <div class="alert-region">Maharashtra, Karnataka</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Financial Tools Section -->
+        <section id="financial" class="section">
+            <div class="container">
+                <div class="section-header">
+                    <h2 data-translate="financial-planning">💰 Financial Planning</h2>
+                    <p data-translate="financial-desc">Optimize costs and maximize profits with smart financial tools</p>
+                </div>
+                
+                <div class="financial-content">
+                    <div class="financial-calculator">
+                        <div class="calculator-section">
+                            <h3 data-translate="cost-calculator">Cost Calculator</h3>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label" data-translate="select-crop-financial">Select Crop</label>
+                                    <select class="form-control" id="financialCrop" onchange="updateCostStructure()">
+                                        <option value="">Select Crop</option>
+                                        <option value="rice">Rice (चावल)</option>
+                                        <option value="wheat">Wheat (गेहूं)</option>
+                                        <option value="cotton">Cotton (कपास)</option>
+                                        <option value="sugarcane">Sugarcane (गन्ना)</option>
+                                        <option value="maize">Maize (मक्का)</option>
+                                        <option value="soybean">Soybean (सोयाबीन)</option>
+                                        <option value="groundnut">Groundnut (मूंगफली)</option>
+                                        <option value="bajra">Bajra (बाजरा)</option>
+                                        <option value="jowar">Jowar (ज्वार)</option>
+                                        <option value="mustard">Mustard (सरसों)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" data-translate="area-hectares">Area (hectares)</label>
+                                    <input type="number" class="form-control" id="financialArea" min="0.1" step="0.1" onchange="calculateFinancials()">
+                                </div>
+                            </div>
+                            
+                            <div class="cost-breakdown" id="costBreakdown">
+                                <h4 data-translate="cost-breakdown">Cost Breakdown</h4>
+                                <div class="cost-items">
+                                    <!-- Will be populated by JavaScript -->
+                                </div>
+                                <div class="total-cost">
+                                    <strong data-translate="total-cost">Total Cost: </strong>
+                                    <span id="totalCost">₹0</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="calculator-section">
+                            <h3 data-translate="profit-analysis">Profit Analysis</h3>
+                            <div id="profitAnalysis">
+                                <div class="profit-metrics">
+                                    <div class="metric">
+                                        <span data-translate="expected-revenue">Expected Revenue:</span>
+                                        <span id="expectedRevenue">₹0</span>
+                                    </div>
+                                    <div class="metric">
+                                        <span data-translate="net-profit">Net Profit:</span>
+                                        <span id="netProfit">₹0</span>
+                                    </div>
+                                    <div class="metric">
+                                        <span data-translate="profit-margin">Profit Margin:</span>
+                                        <span id="profitMargin">0%</span>
+                                    </div>
+                                    <div class="metric">
+                                        <span data-translate="roi">ROI:</span>
+                                        <span id="roi">0%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="calculator-section">
+                            <h3 data-translate="government-schemes">Government Schemes</h3>
+                            <div class="schemes-list">
+                                <div class="scheme-card">
+                                    <h4>PM-KISAN</h4>
+                                    <p data-translate="pm-kisan-desc">₹6,000 per year direct income support</p>
+                                    <span class="scheme-status eligible" data-translate="eligible">Eligible</span>
+                                </div>
+                                <div class="scheme-card">
+                                    <h4>Crop Insurance</h4>
+                                    <p data-translate="crop-insurance-desc">Protection against crop loss</p>
+                                    <span class="scheme-status eligible" data-translate="eligible">Eligible</span>
+                                </div>
+                                <div class="scheme-card">
+                                    <h4>Soil Health Card</h4>
+                                    <p data-translate="soil-health-desc">Free soil testing and recommendations</p>
+                                    <span class="scheme-status eligible" data-translate="eligible">Eligible</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Create Post Modal -->
+    <div id="createPostModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 data-translate="create-new-post">Create New Post</h2>
+                <button class="close-modal" onclick="closeModal('createPostModal')">&times;</button>
+            </div>
+            <form id="createPostForm">
+                <div class="form-group">
+                    <label class="form-label" data-translate="post-title">Title *</label>
+                    <input type="text" class="form-control" id="postTitle" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" data-translate="crop-category">Crop Category</label>
+                    <select class="form-control" id="postCrop">
+                        <option value="general">General</option>
+                        <option value="rice">Rice</option>
+                        <option value="wheat">Wheat</option>
+                        <option value="cotton">Cotton</option>
+                        <option value="sugarcane">Sugarcane</option>
+                        <option value="maize">Maize</option>
+                        <option value="soybean">Soybean</option>
+                        <option value="groundnut">Groundnut</option>
+                        <option value="bajra">Bajra</option>
+                        <option value="jowar">Jowar</option>
+                        <option value="mustard">Mustard</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" data-translate="post-content">Content *</label>
+                    <textarea class="form-control" id="postContent" rows="5" required></textarea>
+                </div>
+                <button type="submit" class="btn btn--primary btn--full-width" data-translate="publish-post">Publish Post</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <button class="nav-item active" onclick="showSection('homepage')" data-section="homepage">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-label" data-translate="home">Home</span>
+        </button>
+        <button class="nav-item" onclick="showSection('location')" data-section="location">
+            <span class="nav-icon">📍</span>
+            <span class="nav-label" data-translate="location">Location</span>
+        </button>
+        <button class="nav-item" onclick="showSection('prediction')" data-section="prediction">
+            <span class="nav-icon">🌾</span>
+            <span class="nav-label" data-translate="predict">Predict</span>
+        </button>
+        <button class="nav-item" onclick="showSection('disease')" data-section="disease">
+            <span class="nav-icon">🔬</span>
+            <span class="nav-label" data-translate="disease">Disease</span>
+        </button>
+        <button class="nav-item" onclick="showSection('community')" data-section="community">
+            <span class="nav-icon">👥</span>
+            <span class="nav-label" data-translate="community">Community</span>
+        </button>
+        <button class="nav-item" onclick="showSection('financial')" data-section="financial">
+            <span class="nav-icon">💰</span>
+            <span class="nav-label" data-translate="financial">Financial</span>
+        </button>
+    </nav>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <h3 data-translate="analyzing">Analyzing...</h3>
+            <p id="loadingMessage" data-translate="please-wait">Please wait while we process your data</p>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
